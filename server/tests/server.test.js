@@ -32,14 +32,13 @@ describe('POST /todos', () => {
       });
   });
 
-  it('should not create todo with invalid text data', () => {
+  it('should be testingh this one too', (done) => {
+    var text = 'test todo text perfect';
+
     request(app)
       .post('/todos')
-      .send({})
-      .expect(404)
-      .expect((response) => {
-        expect(response.body.text).toBe('');
-      })
+      .send({text:""})
+      .expect(400)
       .end((error, response) => {
         if (error) {
           return done(error);
@@ -50,5 +49,5 @@ describe('POST /todos', () => {
           done();
         }).catch((error) => done(error))
       });
-  })
+  });
 });

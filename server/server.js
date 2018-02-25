@@ -16,12 +16,16 @@ app.post('/todos', (request, response) => {
   todo.save().then((document) => {
     response.send(document)
   }, (error) => {
-    response.status(400).send(error)
+    response.status(400).send(error);
   })
 })
 
 app.get('/todos', (request, response) => {
-
+  Todo.find().then((todos) => {
+    response.send({todos})
+  }, (error) => {
+    response.status(400).send(error);
+  });
 })
 
 app.listen(3000, () => {
