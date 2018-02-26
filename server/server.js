@@ -112,6 +112,20 @@ app.post('/users', (request, response) => {
   })
 });
 
+app.post('/users/login', (request, response) => {
+  var body = _.pick(request.body, ['email', 'password']);
+
+  console.log(`email is ${body.email}`);
+  User.findByCredentials(body.email, body.password).then((user) => {
+
+    return user.generateAuthToken().then((token) => {
+      response.header('x-auth', token).send(user);
+    })
+  }).catch((error) => {
+    response.status(400).send();
+  })
+});
+
 app.get('/users/me', authenticate, (request, response) => {
   response.send(request.user);
 });
