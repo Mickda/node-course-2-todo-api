@@ -8,6 +8,8 @@ const {ObjectId} = require('mongodb')
 const todos = [
   {
     _id: new ObjectId(),
+    completed: true,
+    completedAt: 333,
     text: 'first test todo'
   },
   {
@@ -137,6 +139,41 @@ describe('DELETE /todos/:id', () => {
     request(app)
       .delete(`/todos/someInvalidID`)
       .expect(404)
+      .end(done);
+  });
+});
+
+describe('PATCH /todos/:id', () => {
+  it('should update the todo', (done) => {
+    var hexId = todos[0]._id.toHexString();
+    var todo = todos[0];
+    todo.text = "Change text";
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(todo)
+      .expect(200)
+      .expect((response) => {
+        expect(response.body.todo.text).toBe(todo.text);
+        expect(response.body.todo.completed).toBe(true);
+      })
+      .end(done);
+  });
+
+  it('should clear completed at when todo is not completed', (done) => {
+    var hexId = todos[1]._id.toHexString();
+    var todo = todos[1];
+    todo.text = "Change text";
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(todo)
+      .expect(200)
+      .expect((response) => {
+        expect(response.body.todo.text).toBe(todo.text);
+        expect(response.body.todo.completed).toBe(false);
+        expect(response.body.todo.completedAt).toBe(null);
+      })
       .end(done);
   });
 });
