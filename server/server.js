@@ -71,11 +71,6 @@ app.patch('/todos/:id', (request, response) => {
   var id = request.params.id;
   var body = _.pick(request.body, ['text', 'completed']);
 
-  console.log(`request body is`);
-  console.log(request.body);
-  console.log(`body is`);
-  console.log(body);
-
   if (!ObjectId.isValid(id)) {
     response.status(404).send();
   }
@@ -83,13 +78,9 @@ app.patch('/todos/:id', (request, response) => {
   if (_.isBoolean(body.completed) && body.completed) {
     body.completedAt = new Date().getTime();
   } else {
-    console.log('wtf am I doing here?')
     body.completed = false;
     body.completedAt = null;
   }
-
-  console.log(`now body is`);
-  console.log(body);
 
   Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
     response.send({todo});
@@ -105,7 +96,6 @@ app.post('/users', (request, response) => {
   user.save().then((user) => {
     return user.generateAuthToken();
   }).then((token) => {
-    console.log(`adding header ${token}`);
     response.header('x-auth', token).send(user);
   }).catch((error) => {
     response.status(400).send(error);
@@ -115,7 +105,6 @@ app.post('/users', (request, response) => {
 app.post('/users/login', (request, response) => {
   var body = _.pick(request.body, ['email', 'password']);
 
-  console.log(`email is ${body.email}`);
   User.findByCredentials(body.email, body.password).then((user) => {
 
     return user.generateAuthToken().then((token) => {
@@ -128,6 +117,14 @@ app.post('/users/login', (request, response) => {
 
 app.get('/users/me', authenticate, (request, response) => {
   response.send(request.user);
+});
+
+app.delete('/users/me/token', authenticate, (request, response) => {
+  request.user.removeToken(request.token).then(() => {
+    response.status(200).send();
+  }, () => {
+    response.status(400).send();
+  });
 });
 
 app.listen(process.env.PORT, () => {
