@@ -19,10 +19,10 @@ app.post('/todos', (request, response) => {
     completed: request.body.completed
   });
 
-  todo.save().then((document) => {
-    response.send(document)
-  }, (error) => {
-    response.status(400).send(error);
+  todo.save().then((user) => {
+    response.send(user)
+  }).catch(error => {
+
   })
 })
 
@@ -94,6 +94,20 @@ app.patch('/todos/:id', (request, response) => {
     response.send({todo});
   }).catch((error) => {
     response.status(400).send();
+  })
+});
+
+app.post('/users', (request, response) => {
+  var body = _.pick(request.body, ['email', 'password']);
+  var user = new User(body);
+
+  user.save().then((user) => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    console.log(`adding header ${token}`);
+    response.header('x-auth', token).send(user);
+  }).catch((error) => {
+    response.status(400).send(error);
   })
 });
 
